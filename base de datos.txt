@@ -1,0 +1,180 @@
+-- Eliminar base de datos si existe (para reinicio)
+DROP DATABASE IF EXISTS eCommerce;
+
+-- Crear base de datos
+CREATE DATABASE eCommerce;
+USE eCommerce;
+
+-- Tabla de Roles (Nueva tabla para gestionar los roles de los usuarios)
+CREATE TABLE Roles (
+    id_rol INT AUTO_INCREMENT NOT NULL,
+    nombre_rol VARCHAR(50) UNIQUE NOT NULL, -- Ej: 'admin', 'cliente', 'editor'
+    descripcion TEXT,
+    PRIMARY KEY(id_rol)
+);
+
+-- Tabla categorías (debe crearse primero por las foreign keys)
+CREATE TABLE Categoria(
+    id_categoria INT AUTO_INCREMENT NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
+    descripcion TEXT,
+    estado BOOLEAN DEFAULT TRUE,
+    PRIMARY KEY(id_categoria)
+);
+
+-- Tabla usuarios (modificada para usar la tabla Roles)
+CREATE TABLE Usuarios(
+    id_usuario INT AUTO_INCREMENT NOT NULL,
+    nombres VARCHAR(100) NOT NULL,
+    apellido_paterno VARCHAR(30) NOT NULL,
+    apellido_materno VARCHAR(30) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL, -- Aumentado para hashes seguros
+    id_rol INT NOT NULL, -- Ahora es una clave foránea a la tabla Roles
+    telefono VARCHAR(15),
+    direccion TEXT,
+    fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY(id_usuario),
+    FOREIGN KEY (id_rol) REFERENCES Roles(id_rol) -- Establece la relación con la tabla Roles
+);
+
+-- Tabla productos (corregida y mejorada)
+CREATE TABLE Productos(
+    id_producto INT AUTO_INCREMENT NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
+    descripcion TEXT,
+    precio DECIMAL(10,2) NOT NULL,
+    stock INT NOT NULL DEFAULT 0,
+    img_url VARCHAR(500), -- URL de la imagen
+    estado BOOLEAN DEFAULT TRUE,
+    peso DECIMAL(8,2), -- en kg
+    dimensiones VARCHAR(50), -- ej: "20x15x10 cm"
+    marca VARCHAR(50),
+    id_categoria INT NOT NULL,
+    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY(id_producto),
+    FOREIGN KEY(id_categoria ) REFERENCES categoria(id_categoria )
+);
+
+-- Tabla carrito
+CREATE TABLE Carrito(
+    id_carrito INT AUTO_INCREMENT NOT NULL,
+    id_usuario INT NOT NULL,
+    id_producto INT NOT NULL,
+    cantidad INT NOT NULL DEFAULT 1,
+    precio_unitario DECIMAL(10,2) NOT NULL,
+    fecha_agregado DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY(id_carrito),
+    FOREIGN KEY(id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE,
+    FOREIGN KEY(id_producto) REFERENCES productos(id_producto) ON DELETE CASCADE,
+    UNIQUE KEY unique_user_product (id_usuario, id_producto) -- Un producto por usuario en carrito
+);
+
+-- Tabla pedidos
+CREATE TABLE Pedidos(
+    id_pedido INT AUTO_INCREMENT NOT NULL,
+    id_usuario INT NOT NULL,
+    total_pedido DECIMAL(10,2) NOT NULL,
+    estado ENUM('pendiente', 'procesando', 'enviado', 'entregado', 'cancelado') DEFAULT 'pendiente',
+    metodo_pago ENUM('tarjeta', 'paypal', 'transferencia', 'contra_entrega') NOT NULL,
+    direccion_envio TEXT NOT NULL,
+    celular_contacto VARCHAR(9),
+    fecha_pedido DATETIME DEFAULT CURRENT_TIMESTAMP,
+    fecha_entrega DATETIME NULL,
+    PRIMARY KEY(id_pedido),
+    FOREIGN KEY(id_usuario) REFERENCES usuarios(id_usuario)
+);
+
+-- Tabla detalle de pedidos
+CREATE TABLE Detalle_pedido(
+    id_detalle INT AUTO_INCREMENT NOT NULL,
+    id_pedido INT NOT NULL,
+    id_producto INT NOT NULL,
+    cantidad INT NOT NULL,
+    precio_unitario DECIMAL(10,2) NOT NULL,
+    subtotal DECIMAL(10,2) NOT NULL,
+    PRIMARY KEY(id_detalle),
+    FOREIGN KEY(id_pedido) REFERENCES pedidos(id_pedido) ON DELETE CASCADE,
+    FOREIGN KEY(id_producto) REFERENCES productos(id_producto)
+);
+
+-- Tabla para múltiples imágenes de productos (opcional)
+CREATE TABLE Imagenes_producto(
+    id_imagen INT AUTO_INCREMENT NOT NULL,
+    id_producto INT NOT NULL,
+    url_imagen VARCHAR(500) NOT NULL,
+    es_principal BOOLEAN DEFAULT FALSE,
+    orden INT DEFAULT 0,
+    PRIMARY KEY(id_imagen),
+    FOREIGN KEY(id_producto) REFERENCES productos(id_producto) ON DELETE CASCADE
+);
+
+-- Tabla de reseñas/comentarios
+CREATE TABLE Resenas(
+    id_resena INT AUTO_INCREMENT NOT NULL,
+    id_producto INT NOT NULL,
+    id_usuario INT NOT NULL,
+    calificacion INT NOT NULL CHECK (calificacion >= 1 AND calificacion <= 5),
+    comentario TEXT,
+    fecha_resena DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY(id_resena),
+    FOREIGN KEY(id_producto) REFERENCES productos(id_producto) ON DELETE CASCADE,
+    FOREIGN KEY(id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE,
+    UNIQUE KEY unique_user_product_review (id_usuario, id_producto)
+);
+
+-- Índices para mejorar rendimiento
+CREATE INDEX idx_productos_categoria ON productos(id_categoria);
+CREATE INDEX idx_productos_estado ON productos(estado);
+CREATE INDEX idx_productos_precio ON productos(precio);
+CREATE INDEX idx_pedidos_usuario ON pedidos(id_usuario);
+CREATE INDEX idx_pedidos_estado ON pedidos(estado);
+CREATE INDEX idx_carrito_usuario ON carrito(id_usuario);
+
+-- Insertar datos de ejemplo
+
+-- Insertar roles iniciales (PRIMERO DEBEN INSERTARSE LOS ROLES)
+INSERT INTO Roles (nombre_rol, descripcion) VALUES
+('admin', 'Administrador del sistema con todos los permisos'),
+('cliente', 'Usuario regular del eCommerce');
+
+-- Categorías
+INSERT INTO categoria (nombre, descripcion) VALUES
+('Electrónicos', 'Dispositivos electrónicos y gadgets'),
+('Ropa', 'Vestimenta para hombres y mujeres'),
+('Hogar', 'Artículos para el hogar'),
+('Deportes', 'Equipos y accesorios deportivos'),
+('Libros', 'Libros físicos y digitales');
+
+-- Usuario administrador (ahora usa id_rol = 1 para 'admin')
+-- Usuario administrador con contraseña encriptada
+INSERT INTO usuarios (nombres, apellido_paterno, apellido_materno, email, password, id_rol)
+VALUES ('Admin', 'Sistema', 'eCommerce', 'admin@ecommerce.com', '$2a$10$kk5x3UiGHGhzDyxeeGGafOAyAD6DneM0/uidHq6dgaljPtOu6SO8e', 1);
+
+SELECT email, password FROM usuarios WHERE email = 'admin@ecommerce.com';
+
+
+-- Nuevos Inserts (ahora usa id_rol = 2 para 'cliente')
+INSERT INTO Usuarios (nombres, apellido_paterno, apellido_materno, email, password, id_rol, telefono, direccion) VALUES
+('Ana Sofía', 'Rodríguez', 'Martínez', 'ana.rodriguez@example.com', 'hash_password_seguro_3', 2, '998877665', 'Jr. Las Palmeras 789, Trujillo');
+
+INSERT INTO Usuarios (nombres, apellido_paterno, apellido_materno, email, password, id_rol, telefono, direccion) VALUES
+('Ztitan', 'ZZ', 'Martínez', 'elpanaalex123hl@gmail.com', '$2a$10$8dTyIYajP.x4WGPRk6jS0uDhVi0exPgIG.xfyD.ShFQG.M8ODTQ6e', 3, '998877665', 'Av. las gaviotas');
+
+-- Productos de ejemplo
+INSERT INTO productos (nombre, descripcion, precio, stock, id_categoria, marca) VALUES
+('Smartphone Samsung Galaxy', 'Teléfono inteligente con pantalla AMOLED', 599.99, 25, 1, 'Samsung'),
+('Laptop HP Pavilion', 'Laptop para uso profesional y personal', 899.99, 15, 1, 'HP'),
+('Camiseta Polo', 'Camiseta polo de algodón 100%', 29.99, 100, 2, 'Generic'),
+('Zapatillas Deportivas', 'Zapatillas para running y ejercicio', 89.99, 50, 4, 'Nike'),
+('Libro de Programación', 'Guía completa de desarrollo web', 39.99, 30, 5, 'Editorial Tech');
+
+-- Producto adicional
+INSERT INTO productos (nombre, descripcion, precio, stock,img_url,peso,dimensiones,marca, id_categoria) VALUES
+('Auriculares Inalámbricos Xiaomi Redmi Buds 5 Tactil 40hs Color Negro', 'AURICULARES INALÁMBRICOS XIAOMI REDMI BUDS 5', 199.99,5,'https://http2.mlstatic.com/D_NQ_NP_2X_664321-MLA84537728862_052025-F.webp', 0.10,'10x10', 'Xiaomi', 1);
+
+-- Consultas de prueba
+SELECT * FROM usuarios;
+SELECT * FROM productos WHERE id_producto = 6;
+SELECT * FROM categoria;
+SELECT * FROM roles; -- Para verificar los roles insertados
