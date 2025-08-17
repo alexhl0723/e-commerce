@@ -1,8 +1,11 @@
 package com.devotion.ztita.controller;
 
+import com.devotion.ztita.dtos.ProductoEstadoDTO;
 import com.devotion.ztita.model.ImagenesProducto;
 import com.devotion.ztita.model.Producto;
+import com.devotion.ztita.model.Role;
 import com.devotion.ztita.service.ProductoService;
+import com.devotion.ztita.service.RoleService;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +20,8 @@ public class ProductosController {
 
     @Autowired
     private ProductoService productoService;
+    @Autowired
+    private RoleService roleService;
 
     @GetMapping
     public List<Producto> listar() {
@@ -30,18 +35,15 @@ public class ProductosController {
 
     @PostMapping
     public ResponseEntity<Producto> guardar(@RequestBody Producto producto) {
-        productoService.imagenes(producto);
-
+        productoService.prepararImagenes(producto);
         Producto guardado = productoService.crear(producto);
         return ResponseEntity.ok(guardado);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Producto> actualizar(@PathVariable int id, @RequestBody Producto producto) {
-        productoService.imagenes(producto);
-        producto.setIdProducto(id); // asegúrate de asignar el ID
-        Producto actualizado = productoService.crear(producto); // reutilizas save()
-
+        productoService.prepararImagenes(producto);
+        Producto actualizado = productoService.actualizarPorId(id, producto);
         return ResponseEntity.ok(actualizado);
     }
 
@@ -59,5 +61,12 @@ public class ProductosController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @PatchMapping("/estado")
+    public ResponseEntity<Producto> actualizarEstado(@RequestBody ProductoEstadoDTO dto) {
+        Producto actualizado = productoService.actualizarEstado(dto);
+        return ResponseEntity.ok(actualizado);
+    }
+
 
 }

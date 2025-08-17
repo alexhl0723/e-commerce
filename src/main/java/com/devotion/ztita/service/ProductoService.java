@@ -1,12 +1,12 @@
 package com.devotion.ztita.service;
 
+import com.devotion.ztita.dtos.ProductoEstadoDTO;
 import com.devotion.ztita.model.ImagenesProducto;
 import com.devotion.ztita.model.Producto;
 import com.devotion.ztita.repository.ProductoRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -28,13 +28,7 @@ public class ProductoService {
         return productoRepository.findById(id).orElseThrow();
     }
 
-    public Producto crear(Producto producto)
-    {
-        return productoRepository.save(producto);
-
-    }
-
-
+    public Producto crear(Producto producto) { return productoRepository.save(producto);}
 
     public Producto actualizarPorId(int id,Producto producto){
         if(!productoRepository.existsById(id)){
@@ -51,8 +45,16 @@ public class ProductoService {
         productoRepository.deleteById(id);
     }
 
+    public Producto actualizarEstado(ProductoEstadoDTO dto){
+        Producto producto = productoRepository.findById(dto.getIdProducto())
+                .orElseThrow(() -> new EntityNotFoundException("no existe el producto"));
+        producto.setEstado(dto.getEstado());
+        return productoRepository.save(producto);
+
+    }
+
     //este medoto es un refactor brutal
-    public void imagenes(@RequestBody Producto producto) {
+    public void prepararImagenes(Producto producto) {
         List<ImagenesProducto> imagenes = producto.getImagenesProductos();
 
         if (imagenes != null && !imagenes.isEmpty()) {

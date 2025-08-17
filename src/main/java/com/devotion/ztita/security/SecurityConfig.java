@@ -37,14 +37,31 @@ public class SecurityConfig {
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers("/index").hasAnyRole("USER", "ADMIN","ZTITAN")
 						.requestMatchers("/auth/**").permitAll()
+						.requestMatchers("imagenes/**").permitAll()
 						.requestMatchers("/admin/**").hasRole("ADMIN")
 						.requestMatchers("/users/**").hasAnyRole("ADMIN","ZTITAN")//para 2 roles o más
 						.requestMatchers("/categoria/**").hasAnyRole("ADMIN","ZTITAN")
 						.requestMatchers("/producto/**").hasAnyRole("ADMIN","ZTITAN")
 						.requestMatchers("/role/**").hasAnyRole("ADMIN","ZTITAN")
 						.requestMatchers("/usuario/**").hasAnyRole("ADMIN","ZTITAN")
+						.requestMatchers("/carrito/**").hasAnyRole("ADMIN","ZTITAN")
 						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 						.requestMatchers("/imagenes/**").permitAll()
+						.requestMatchers(HttpMethod.GET,"/imagenes/**").permitAll()
+
+						.requestMatchers(
+								"/swagger-ui/**",
+								"/swagger-ui.html",
+								"/v3/api-docs",
+								"/v3/api-docs/**",
+								"/v3/api-docs.yaml",
+								"/swagger-resources/**",
+								"/configuration/**",
+								"/webjars/**"
+						).permitAll()
+						// Métodos OPTIONS
+						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+						
 						.anyRequest().authenticated()
 				)
 				.formLogin(form -> form.disable())
@@ -53,7 +70,6 @@ public class SecurityConfig {
 
 		return http.build();
 	}
-
 
 	@Bean
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {

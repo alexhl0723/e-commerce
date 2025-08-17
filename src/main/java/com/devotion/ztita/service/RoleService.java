@@ -17,23 +17,36 @@ public class RoleService {
     @Autowired
     private RoleRepository roleRepository;
 
-    public List<Role> listarRoles() {
-        return roleRepository.findAll();
+    public List<RoleResponseDTO> listarRoles()
+    {
+        return roleRepository.findAll()
+                .stream()
+                .map(RoleMapper::toDTO)
+                .toList();
     }
 
-    public Role obtenerPorId(int id) {
-        return roleRepository.findById(id).orElseThrow();
+    public RoleResponseDTO buscarPorId(int id) {
+        Role role = roleRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Role no encontrado piipip" +
+                + id));
+        return RoleMapper.toDTO(role);
     }
 
-    public Role guardar(Role role){
-        return roleRepository.save(role);
+    public RoleResponseDTO guardar(RoleRequestDTO dto){
+        Role role = RoleMapper.toEntity(dto);
+        Role guardado = roleRepository.save(role);
+        return RoleMapper.toDTO(guardado);
     }
 
-    public Role actualizar(int id, RoleRequestDTO dto){
-        Role role = roleRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Role no existente con el id" + id));
+    public RoleResponseDTO actualizar(int id, RoleRequestDTO dto){
+        Role role = buscarPorIdRealAqui(id);
         RoleMapper.updateEntity(role,dto);
-        return roleRepository.save(role);
+        Role actualizado = roleRepository.save(role);
+        return RoleMapper.toDTO(actualizado);
+    }
+
+    private Role buscarPorIdRealAqui(int id){
+        return roleRepository.findById(id)
+                .orElseThrow(()-> new EntityNotFoundException("role no encontrado no lo digas"+ id) );
     }
 
     public void eliminar(int id){
@@ -42,10 +55,6 @@ public class RoleService {
         }
         roleRepository.deleteById(id);
     }
-
-
-
-
 
 
 }

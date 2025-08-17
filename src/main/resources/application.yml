@@ -1,0 +1,55 @@
+spring:
+  application:
+    name: Abisandra
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/eCommerce?serverTimezone=America/Lima
+    username: root
+    password: 70637380Hl112211.
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        jdbc:
+          time_zone: America/Lima
+
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    cache: false
+
+  main:
+    allow-bean-definition-overriding: true
+
+  task:
+    scheduling:
+      pool:
+        size: 2
+
+server:
+  port: 8084
+  error:
+    include-stacktrace: always
+    include-message: always
+    include-binding-errors: always
+    include-exception: true
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+
+logging:
+  level:
+    org.springframework.web: DEBUG
+    com.example: DEBUG
+    org.springframework: DEBUG
+    com.example.nautica: DEBUG
+    net.sf.jasperreports: DEBUG
+
+jwt:
+  secret: the-really-ztitan-formydadagaagtger-alexztita123456

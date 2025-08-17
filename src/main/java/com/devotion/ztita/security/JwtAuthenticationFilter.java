@@ -33,7 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String path = request.getServletPath();
 
         // ignora rutas públicas, ojo esto puede atacar ya me ataco 😔😔😔🗿🗿
-        if (path.startsWith("/auth") || path.startsWith("/index") /*| path.startsWith("/categoria") ataco xd*/) {
+        if (path.startsWith("/auth") || path.startsWith("/index") || path.startsWith("/imagenes/**") /*| path.startsWith("/categoria") ataco xd*/) {
             filterChain.doFilter(request, response);
             return;
         }
