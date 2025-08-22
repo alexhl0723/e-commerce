@@ -1,4 +1,4 @@
-package com.devotion.ztita.controller;
+    package com.devotion.ztita.controller;
 
 import com.devotion.ztita.dtos.AuthRequest;
 import com.devotion.ztita.dtos.AuthResponse;
@@ -83,7 +83,7 @@ public class AuthController {
 
         usuarioRepository.save(nuevo);
 
-        return ResponseEntity.ok("✅ Usuario registrado correctamente");
+       return ResponseEntity.ok(Map.of("message", "✅ Usuario registrado correctamente"));
     }
 
 
