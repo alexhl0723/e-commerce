@@ -57,7 +57,14 @@ public class AuthController {
         final UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
         final String jwt = jwtTokenUtil.generateToken(userDetails);
 
-        return ResponseEntity.ok(new AuthResponse(jwt));
+        Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // Obtiene el ID del rol del usuario
+        int roleId = usuario.getRole().getIdRol();
+
+        // Devuelve el token y el ID del rol
+        return ResponseEntity.ok(new AuthResponse(jwt, roleId));
     }
 
     @PostMapping("/registrarse")
