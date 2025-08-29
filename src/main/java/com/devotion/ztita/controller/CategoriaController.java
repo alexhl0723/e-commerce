@@ -3,6 +3,7 @@ package com.devotion.ztita.controller;
 import com.devotion.ztita.model.Categoria;
 import com.devotion.ztita.service.CategoriaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,5 +40,12 @@ public class CategoriaController {
     public void eliminar(@PathVariable int id){
         categoriaService.eliminar(id);
     }
+    @PutMapping("/{id}/estado")
+    public ResponseEntity<Categoria> actualizarEstado(
+            @PathVariable int id,
+            @RequestParam boolean estado) {
 
+        Categoria categoriaActualizada = categoriaService.cambiarEstado(id, estado);
+        return ResponseEntity.ok(categoriaActualizada);
+    }
 }

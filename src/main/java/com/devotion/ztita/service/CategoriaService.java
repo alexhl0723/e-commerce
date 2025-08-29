@@ -5,6 +5,7 @@ import com.devotion.ztita.repository.CategoriaRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -39,6 +40,11 @@ public class CategoriaService {
         }
         categoria.setIdCategoria(id); // muy importante
         return categoriaRepository.save(categoria);
+    }
+    public Categoria cambiarEstado(int id, boolean estado) {
+        byte estadoByte = (byte) (estado ? 1 : 0);
+        categoriaRepository.actualizarEstado(id, estadoByte);
+        return categoriaRepository.findById(id).orElse(null);
     }
 }
 
