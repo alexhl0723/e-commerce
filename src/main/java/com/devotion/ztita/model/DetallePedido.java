@@ -1,6 +1,8 @@
 package com.devotion.ztita.model;
 
 import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 
@@ -28,11 +30,13 @@ public class DetallePedido implements Serializable {
 	private BigDecimal subtotal;
 
 	//bi-directional many-to-one association to Pedido
+	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name="id_pedido")
 	private Pedido pedido;
 
 	//bi-directional many-to-one association to Producto
+	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name="id_producto")
 	private Producto producto;

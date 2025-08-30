@@ -45,9 +45,9 @@ public class SecurityConfig {
 						.requestMatchers("/role/**").hasAnyRole("ADMIN","ZTITAN")
 						.requestMatchers("/usuario/**").hasAnyRole("ADMIN","ZTITAN")
 						.requestMatchers("/carrito/**").hasAnyRole("ADMIN","ZTITAN")
-						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+						.requestMatchers("/pedidos/**").permitAll()
+						.requestMatchers("/detalle-pedido/**").permitAll()
 						.requestMatchers("/imagenes/**").permitAll()
-						.requestMatchers(HttpMethod.GET,"/imagenes/**").permitAll()
 
 						.requestMatchers(
 								"/swagger-ui/**",
@@ -96,7 +96,10 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(List.of("http://localhost:4200")); // angular
+		configuration.setAllowedOrigins(List.of(
+				"http://localhost:4200", // Angular frontend
+				"http://localhost:8084"  // Swagger o Postman
+		));
 		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		configuration.setAllowedHeaders(List.of("*"));
 		configuration.setAllowCredentials(true);

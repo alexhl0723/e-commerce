@@ -8,7 +8,6 @@ import com.devotion.ztita.model.Usuario;
 import com.devotion.ztita.repository.UsuarioRepository;
 import com.devotion.ztita.security.JwtTokenUtil;
 import com.devotion.ztita.service.UsuarioService;
-import jakarta.servlet.http.Cookie;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,8 +20,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
+import java.util.Map;
 
-@RestController
+    @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
@@ -34,9 +34,6 @@ public class AuthController {
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
-
-    @Autowired
-    private UsuarioService usuarioService;
 
     @Autowired
     UsuarioRepository usuarioRepository;
@@ -85,13 +82,11 @@ public class AuthController {
 
         // Asignar rol por defecto (ej: cliente con id_rol = 2)
         Role rolCliente = new Role();
-        rolCliente.setIdRol(2); // Asegúrate que ese ID existe
+        rolCliente.setIdRol(3); // Asegúrate que ese ID existe -> cuando se cambia el rol
         nuevo.setRole(rolCliente);
 
         usuarioRepository.save(nuevo);
 
        return ResponseEntity.ok(Map.of("message", "✅ Usuario registrado correctamente"));
     }
-
-
 }
