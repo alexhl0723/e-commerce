@@ -1,5 +1,6 @@
 package com.devotion.ztita.service;
 
+import com.devotion.ztita.dtos.ProductoEstadoDTO;
 import com.devotion.ztita.model.ImagenesProducto;
 import com.devotion.ztita.model.Producto;
 import com.devotion.ztita.repository.ProductoRepository;
@@ -57,4 +58,14 @@ public class ProductoService {
         byte estadoByte = (byte) (estado ? 1 : 0);
         productoRepository.actualizarEstado(id, estadoByte);
     }
+
+    public Producto actualizarEstado(ProductoEstadoDTO dto) {
+        Producto producto = productoRepository.findById(dto.getIdProducto())
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado con id: " + dto.getIdProducto()));
+
+        producto.setEstado(dto.getEstado()); // actualizar el estado
+        return productoRepository.save(producto); // guardar cambios
+    }
+
+
 }
